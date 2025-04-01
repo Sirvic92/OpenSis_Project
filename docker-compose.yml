@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # openSIS Application Database
+  db:
+    image: mariadb:10.5
+    container_name: openSIS-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Orjilee92@
+      MYSQL_DATABASE: openSIS
+      MYSQL_USER: openSIS_rw
+      MYSQL_PASSWORD: Op3nS!S
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./MYSQL/mysql-config:/etc/mysql/conf.d
+      - db-data:/var/lib/mysql
+    networks:
+      - opensis-net
+
+  # openSIS Application
+  app:
+    image: opensis-app:latest
+    container_name: opensis-app
+    restart: always
+    ports:
+      - "1001:80"
+    depends_on:
+      - db
+    networks:
+      - opensis-net
+
+  # Grafana Database (separate MariaDB instance)
+  grafana-db:
+    image: mariadb:10.5
+    container_name: grafana-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: GrafanaRootPass!
+      MYSQL_DATABASE: grafana
+      MYSQL_USER: grafana_user
+      MYSQL_PASSWORD: GrafanaPass123
+    ports:
+      - "3308:3306"
+    volumes:
+      - grafana-db-data:/var/lib/mysql
+    networks:
+      - opensis-net
+
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    environment:
+      - GF_DATABASE_TYPE=mysql
+      - GF_DATABASE_HOST=grafana-db:3306
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=grafana_user
+      - GF_DATABASE_PASSWORD=GrafanaPass123
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    ports:
+      - "3000:3000"
+    depends_on:
+      - grafana-db
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - opensis-net
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    volumes:
+      - $PWD/prometheus.yml:/etc/prometheus/prometheus.yml
+      - $PWD/rules.yml:/etc/prometheus/rules.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - opensis-net
+
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    networks:
+      - opensis-net
+
+  # Cadvisor
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - opensis-net
+
+  # Alertmanager
+  alert-manager:
+    image: prom/alertmanager
+    container_name: alert-manager
+    restart: always
+    volumes:
+      - ${PWD}/alertmanager.yml:/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    networks:
+      - opensis-net
+
+volumes:
+  db-data:
+  grafana-data:
+  grafana-db-data:
+
+networks:
+  opensis-net:
+    driver: bridge
