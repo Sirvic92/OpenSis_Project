@@ -74,7 +74,7 @@ services:
   # Prometheus
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
+    container_name: s8victor_prometheus
     restart: always
     volumes:
       - $PWD/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -87,7 +87,7 @@ services:
   # Node Exporter
   node-exporter:
     image: prom/node-exporter
-    container_name: node-exporter
+    container_name: s8victor_node-exporter
     restart: always
     ports:
       - "9100:9100"
@@ -97,7 +97,7 @@ services:
   # Cadvisor
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
+    container_name: s8victor_cadvisor
     restart: always
     ports:
       - "8081:8080"
@@ -112,7 +112,7 @@ services:
   # Alertmanager
   alert-manager:
     image: prom/alertmanager
-    container_name: alert-manager
+    container_name: s8victor_alert-manager
     restart: always
     volumes:
       - ${PWD}/alertmanager.yml:/alertmanager/alertmanager.yml
