@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   # openSIS Application Database
@@ -90,7 +90,7 @@ services:
     container_name: s8victor_node-exporter
     restart: always
     ports:
-      - "9100:9100"
+      - "9101:9100"  # updated to avoid port conflict
     networks:
       - opensis-net
 
@@ -100,7 +100,7 @@ services:
     container_name: s8victor_cadvisor
     restart: always
     ports:
-      - "8081:8080"
+      - "8082:8080"  # updated to avoid port conflict
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -117,7 +117,7 @@ services:
     volumes:
       - ${PWD}/alertmanager.yml:/alertmanager/alertmanager.yml
     ports:
-      - "9093:9093"
+      - "9094:9093"  # updated to avoid port conflict
     networks:
       - opensis-net
 
