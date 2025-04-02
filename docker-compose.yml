@@ -77,8 +77,7 @@ services:
     container_name: s8victor_prometheus
     restart: always
     volumes:
-      - $PWD/prometheus.yml:/etc/prometheus/prometheus.yml
-      - $PWD/rules.yml:/etc/prometheus/rules.yml
+      - ./prometheus-config:/etc/prometheus:ro
     ports:
       - "9090:9090"
     networks:
@@ -115,7 +114,7 @@ services:
     container_name: s8victor_alert-manager
     restart: always
     volumes:
-      - ${PWD}/alertmanager.yml:/alertmanager/alertmanager.yml
+      - ./alertmanager.yml:/alertmanager/alertmanager.yml
     ports:
       - "9094:9093"  # updated to avoid port conflict
     networks:
