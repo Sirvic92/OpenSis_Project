@@ -51,7 +51,7 @@ services:
   # Grafana
   grafana:
     image: grafana/grafana
-    container_name: grafana
+    container_name: s8victor_grafana
     restart: always
     environment:
       - GF_DATABASE_TYPE=mysql
@@ -71,15 +71,13 @@ services:
     networks:
       - opensis-net
 
-  # Prometheus
+  # Prometheus (Custom Build with Config Inside)
   prometheus:
-    image: prom/prometheus
+    build:
+      context: ./prometheus-image
     container_name: s8victor_prometheus
-    restart: always
-    volumes:
-      - ./prometheus-config:/etc/prometheus:ro
     ports:
-      - "9090:9090"
+      - "9095:9090"
     networks:
       - opensis-net
 
@@ -89,7 +87,7 @@ services:
     container_name: s8victor_node-exporter
     restart: always
     ports:
-      - "9101:9100"  # updated to avoid port conflict
+      - "9101:9100"
     networks:
       - opensis-net
 
@@ -99,7 +97,7 @@ services:
     container_name: s8victor_cadvisor
     restart: always
     ports:
-      - "8082:8080"  # updated to avoid port conflict
+      - "8082:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -116,7 +114,7 @@ services:
     volumes:
       - ./alertmanager.yml:/alertmanager/alertmanager.yml
     ports:
-      - "9094:9093"  # updated to avoid port conflict
+      - "9094:9093"
     networks:
       - opensis-net
 
@@ -128,3 +126,4 @@ volumes:
 networks:
   opensis-net:
     driver: bridge
+
